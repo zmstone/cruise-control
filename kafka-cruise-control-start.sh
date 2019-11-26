@@ -142,6 +142,7 @@ then
   KAFKA_OPTS="-Djava.security.auth.login.config=$base_dir/config/cruise_control_jaas.conf $KAFKA_OPTS"
 fi
 
+JVM_OPTS=""
 DAEMON_NAME="kafka-cruise-control"
 CONSOLE_OUTPUT_FILE="${LOG_DIR}"/"${DAEMON_NAME}".out
 while [ $# -gt 0 ]; do
@@ -167,6 +168,10 @@ while [ $# -gt 0 ]; do
       copyJars "$JAR_PATHS"
       shift 2
       ;;
+    -jvmopt)
+      JVM_OPTS="$JVM_OPTS $2"
+      shift 2
+      ;;
     *)
       break
       ;;
@@ -186,7 +191,7 @@ fi
 
 # Launch mode
 if [ "x$DAEMON_MODE" = "xtrue" ]; then
-  nohup $JAVA $KAFKA_HEAP_OPTS $KAFKA_JVM_PERFORMANCE_OPTS $KAFKA_GC_LOG_OPTS $KAFKA_JMX_OPTS $KAFKA_LOG4J_OPTS -cp $CLASSPATH $KAFKA_OPTS com.linkedin.kafka.cruisecontrol.KafkaCruiseControlMain "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
+  nohup $JAVA $KAFKA_HEAP_OPTS $KAFKA_JVM_PERFORMANCE_OPTS $KAFKA_GC_LOG_OPTS $KAFKA_JMX_OPTS $KAFKA_LOG4J_OPTS $JVM_OPTS -cp $CLASSPATH $KAFKA_OPTS com.linkedin.kafka.cruisecontrol.KafkaCruiseControlMain "$@" > "$CONSOLE_OUTPUT_FILE" 2>&1 < /dev/null &
 else
-  exec $JAVA $KAFKA_HEAP_OPTS $KAFKA_JVM_PERFORMANCE_OPTS $KAFKA_GC_LOG_OPTS $KAFKA_JMX_OPTS $KAFKA_LOG4J_OPTS -cp $CLASSPATH $KAFKA_OPTS com.linkedin.kafka.cruisecontrol.KafkaCruiseControlMain "$@"
+  exec $JAVA $KAFKA_HEAP_OPTS $KAFKA_JVM_PERFORMANCE_OPTS $KAFKA_GC_LOG_OPTS $KAFKA_JMX_OPTS $KAFKA_LOG4J_OPTS $JVM_OPTS -cp $CLASSPATH $KAFKA_OPTS com.linkedin.kafka.cruisecontrol.KafkaCruiseControlMain "$@"
 fi
